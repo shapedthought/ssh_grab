@@ -23,6 +23,10 @@ you wish to use which can be:
 You will need to specify the location of the SSH key before progressing, note that if you use OpenSSH it is likely that
 the file will be saved in the /Users/User_name/.ssh folder.
 
+To run simply open Powershell in the directory with the ssh_grab.py then run:
+    
+    python .\ssg_grab.py
+
 Logging is enabled in ssh_grab so you will find a issues.log file in the root of the directory when you run it to see
 what is going on. This is set to DEBUG mode (level=logging.DEBUG), if you want to reduce this log level just remove that
 string and it will go back to the default WARNING level.
