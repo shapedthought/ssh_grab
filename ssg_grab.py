@@ -17,16 +17,22 @@ sg.theme('SystemDefaultForReal')
 
 class Gui:
     """Creates the GUI"""
+
     def __init__(self):
+        self.menu_def = [['Help', 'About...']]
+
         self.layout = [
-            [sg.Text('Username', size=(16, 1)), sg.InputText(key='USERNAME')],
-            [sg.Text('Password', size=(16, 1)), sg.InputText(password_char='*', key='PASSWORD')],
+            [sg.Menu(self.menu_def)],
             [sg.Text('Source IP Address file', size=(16, 1)), sg.Input(key='IPPATH'),
              sg.FileBrowse(file_types=(('Text Files', '.txt'),), )],
             [sg.Text('Disk Info Output folder', size=(16, 1)), sg.InputText(key='DISKPATH'), sg.FolderBrowse()],
-            [sg.Checkbox('Use SSH Key', default=False, key='SSHCHECK'), sg.Checkbox('SSH Password', default=False,
-                                                                                    key='SSHPASS')],
-            [sg.Text('SSH Key', size=(16, 1)), sg.InputText(key='SSHKEY'), sg.FileBrowse()],
+            [sg.Checkbox('Use SSH Key', default=False, key='SSHCHECK', enable_events=True),
+             sg.Checkbox('SSH Password', default=False, key='SSHPASS', enable_events=True, disabled=True)],
+            [sg.Text('Username', size=(16, 1)), sg.InputText(key='USERNAME')],
+            [sg.Text('Password', size=(16, 1)), sg.InputText(password_char='*', key='PASSWORD')],
+            [sg.Text('SSH Key', size=(16, 1)), sg.InputText(key='SSHKEY', disabled=True), sg.FileBrowse(key='SSHKEYB',
+                                                                                                        disabled=True)],
+            [sg.Text('SSH Password', size=(16, 1)), sg.InputText(password_char='*', disabled=True, key='SSHPASSWORD')],
             [sg.Text("Log")],
             [sg.Output(size=(70, 10))],
             [sg.Submit('Submit', key='SUBMIT'), sg.Cancel('Cancel', key='CANCEL')]]
@@ -102,18 +108,49 @@ class Sshconnect:
 def main():
     g = Gui()
     s = Sshconnect()
+    check_ssh = False
+    check_pass = False
     while True:
         event, values = g.window.Read()
         if event is None or event == 'CANCEL':
             break
         if event == 'SUBMIT':
-            if not values['USERNAME'] or not values['PASSWORD'] or not values['IPPATH'] or not values['DISKPATH']:
+            if check_ssh and not values['SSHKEY']:
+                sg.popup_error('Missing SSH Key')
+            elif check_pass and not values['SSHPASSWORD']:
+                sg.popup_error('Missing SSH Password')
+            elif not check_pass and not values['USERNAME'] or not values['PASSWORD'] or not values['IPPATH'] \
+                    or not values['DISKPATH']:
                 sg.popup_error('Info missing!')
-                pass
-            elif values['SSHCHECK'] and not values['SSHKEY']:
-                sg.popup_error('Key missing')
                 pass
             else:
                 s.connect(values)
+        if event == 'SSHCHECK':
+            if not check_ssh:
+                g.window['USERNAME'].update(disabled=True)
+                g.window['PASSWORD'].update(disabled=True)
+                g.window['SSHPASS'].update(disabled=False)
+                g.window['SSHKEY'].update(disabled=False)
+                g.window['SSHKEYB'].update(disabled=False)
+                check_ssh = True
+            else:
+                g.window['USERNAME'].update(disabled=False)
+                g.window['PASSWORD'].update(disabled=False)
+                g.window['SSHPASS'].update(disabled=True)
+                g.window['SSHKEY'].update(disabled=True)
+                g.window['SSHKEYB'].update(disabled=True)
+                check_ssh = False
+        if event == 'SSHPASS':
+            if not check_pass:
+                g.window['SSHPASSWORD'].update(disabled=False)
+                g.window['SSHCHECK'].update(disabled=True)
+                check_pass = True
+            else:
+                g.window['SSHPASSWORD'].update(disabled=True)
+                g.window['SSHCHECK'].update(disabled=False)
+                check_pass = False
+        if event == 'About...':
+            sg.popup('This program makes it easy to grab disk information from Linux hosts.',
+                     'https://github.com/shapedthought/ssh_grab')
 
 main()

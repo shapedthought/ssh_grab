@@ -10,15 +10,19 @@ It is written in Python 3.8 and uses:
 - xlsxwriter
 - PySimpleGUI
 
-![](images/ssh_grab.png)
+![](images/ssh_grab_011020.png)
 
-Note that though there is a dedicated ssh key and ssh password checkbox they are only needed if your key is not in the 
-usual .ssh directory. Paramiko is clever is that is will always check the keys listed there before using the username
-and password. This also means that if you need to use multiple keys you can place them in the .ssh directory and it
-will automatically check each of them.
+The tools simple to use, simply add all the Linux server IP addresses to a text file, on per-line and select that file in
+the GUI. Next specify where you would like the output Excel file to be saved. You then need to specify the credentials
+you wish to use which can be:
+
+- Username and password
+- SSH Key alone
+- SSH Key with password
+
+You will need to specify the location of the SSH key before progressing, note that if you use OpenSSH it is likely that
+the file will be saved in the /Users/User_name/.ssh folder.
 
 Logging is enabled in ssh_grab so you will find a issues.log file in the root of the directory when you run it to see
 what is going on. This is set to DEBUG mode (level=logging.DEBUG), if you want to reduce this log level just remove that
 string and it will go back to the default WARNING level.
-
-The app does work but there is still a lot to test and update.
