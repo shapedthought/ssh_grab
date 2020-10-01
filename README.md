@@ -1,8 +1,6 @@
 # ssh_grab
 
-This is a GUI based SSH client to grab disk information from Linux hosts in an environment. The aim being to quickly gather this information.
-All you need to do is put all the IP addresses for all the systems in a text file, one per-line and ssh_grab will loop through them and output
-them to an excel file.
+This is a GUI based SSH client to grab disk information from Linux hosts in an environment.
 
 It is written in Python 3.8 and uses:
 
