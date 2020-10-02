@@ -3,7 +3,7 @@ import xlsxwriter
 import PySimpleGUI as sg
 from pathlib import Path
 import logging
-import time
+import pandas as pd
 
 from paramiko import AuthenticationException
 
@@ -22,6 +22,7 @@ class Gui:
         self.menu_def = [['Help', 'About...']]
 
         self.layout = [
+            # type:
             [sg.Menu(self.menu_def)],
             [sg.Text('Source IP Address file', size=(16, 1)), sg.Input(key='IPPATH'),
              sg.FileBrowse(file_types=(('Text Files', '.txt'),), )],
@@ -61,17 +62,17 @@ class Sshconnect:
             for ip in f:
                 ip = ip.rstrip()
                 ssh = paramiko.SSHClient()
-                key = paramiko.RSAKey.from_private_key_file(values['SSHKEY']) if values['SSHCHECK'] else ""
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 try:
                     print('Connecting to host ' + ip)
                     if values['SSHCHECK'] and values['SSHPASS']:
-                        ssh.connect(hostname=ip, username=values['USERNAME'], password=values['PASSWORD'],
-                                    pkey=key)
+                        key = paramiko.RSAKey.from_private_key_file(values['SSHKEY'], password=values['SSHPASSWORD'])
+                        ssh.connect(hostname=ip, username=values['USERNAME'], pkey=key, look_for_keys=False)
                     elif values['SSHCHECK']:
-                        ssh.connect(hostname=ip, username=values['USERNAME'], pkey=key)
+                        key = paramiko.RSAKey.from_private_key_file(values['SSHKEY'])
+                        ssh.connect(hostname=ip, username=values['USERNAME'], pkey=key, look_for_keys=False)
                     else:
-                        ssh.connect(hostname=ip, username=values['USERNAME'], password=values['PASSWORD'])
+                        ssh.connect(hostname=ip, username=values['USERNAME'], password=values['PASSWORD'], look_for_keys=False)
                 except AuthenticationException as err:
                     logger.error(err)
                     print(err)
@@ -119,22 +120,19 @@ def main():
                 sg.popup_error('Missing SSH Key')
             elif check_pass and not values['SSHPASSWORD']:
                 sg.popup_error('Missing SSH Password')
-            elif not check_pass and not values['USERNAME'] or not values['PASSWORD'] or not values['IPPATH'] \
-                    or not values['DISKPATH']:
+            elif not values['IPPATH'] or not values['DISKPATH']:
                 sg.popup_error('Info missing!')
                 pass
             else:
                 s.connect(values)
         if event == 'SSHCHECK':
             if not check_ssh:
-                g.window['USERNAME'].update(disabled=True)
                 g.window['PASSWORD'].update(disabled=True)
                 g.window['SSHPASS'].update(disabled=False)
                 g.window['SSHKEY'].update(disabled=False)
                 g.window['SSHKEYB'].update(disabled=False)
                 check_ssh = True
             else:
-                g.window['USERNAME'].update(disabled=False)
                 g.window['PASSWORD'].update(disabled=False)
                 g.window['SSHPASS'].update(disabled=True)
                 g.window['SSHKEY'].update(disabled=True)
@@ -152,5 +150,6 @@ def main():
         if event == 'About...':
             sg.popup('This program makes it easy to grab disk information from Linux hosts.',
                      'https://github.com/shapedthought/ssh_grab')
+
 
 main()
