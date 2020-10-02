@@ -3,14 +3,13 @@ import xlsxwriter
 import PySimpleGUI as sg
 from pathlib import Path
 import logging
-import pandas as pd
 
 from paramiko import AuthenticationException
 
 logging.basicConfig(filename='.\\issues.log', level=logging.DEBUG)
 
 logger = logging.getLogger()
-print(logger)
+
 
 sg.theme('SystemDefaultForReal')
 
