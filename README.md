@@ -8,6 +8,10 @@ It is written in Python 3.8 and uses:
 - xlsxwriter
 - PySimpleGUI
 
+To install these simply enter the following into CMD (python required):
+
+    pip install paramiko xlsxwriter PySimpleGUI
+
 ![](images/ssh_grab_011020.png)
 
 The tools simple to use, simply add all the Linux server IP addresses to a text file, on per-line and select that file in
